@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User History - OldTown Library</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #ddd;
+            width: 100%;
+            max-width: 1000px;
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            font-family: 'Georgia', serif;
+            margin-top: 0;
+        }
+        .search-section { display: flex; gap: 2rem; margin-bottom: 2rem; justify-content: center; flex-wrap: wrap; }
+        .search-card { background: #f9f9f9; padding: 1.5rem; border-radius: 4px; border: 1px solid #eee; flex: 1; min-width: 300px; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group input {
+            width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 3px; box-sizing: border-box;
+        }
+        button {
+            width: 100%; padding: 0.75rem; background-color: #2c3e50; color: white; border: none; border-radius: 3px;
+            cursor: pointer; font-weight: bold; text-transform: uppercase;
+        }
+        button:hover { background-color: #1a252f; }
+        table {
+            width: 100%; border-collapse: collapse; margin-top: 1.5rem;
+        }
+        th, td {
+            padding: 12px; text-align: left; border-bottom: 1px solid #ddd;
+        }
+        th { background-color: #2c3e50; color: white; }
+        .error {
+            background-color: #ffebee; color: #c62828; padding: 10px; border-radius: 3px; text-align: center; margin-bottom: 1rem;
+        }
+        .link {
+            display: block; text-align: center; margin-top: 1rem; color: #2c3e50; text-decoration: none;
+        }
+        .stats-bar {
+            display: flex; justify-content: space-around; background: #e8f5e9; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; border: 1px solid #c8e6c9;
+        }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 1.5rem; font-weight: bold; color: #2e7d32; }
+        .stat-label { font-size: 0.9rem; color: #555; }
+        .status-badge { padding: 3px 8px; border-radius: 3px; font-size: 0.85rem; }
+        .status-Issued { background: #fff3cd; color: #856404; }
+        .status-Returned { background: #d4edda; color: #155724; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Borrowing History</h2>
+        
+        <% if (error) { %>
+            <div class="error"><%= error %></div>
+        <% } %>
+
+        <% if (locals.message) { %>
+            <div class="error" style="background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9;"><%= message %></div>
+        <% } %>
+
+        <div class="search-section">
+            <!-- Staff Search -->
+            <div class="search-card">
+                <h3 style="margin-top: 0; color: #2c3e50;">Staff History</h3>
+                <form action="/history" method="POST">
+                    <div class="form-group">
+                        <input type="text" name="username" placeholder="Enter Staff Username (e.g. as1)" required>
+                    </div>
+                    <button type="submit">View Staff Records</button>
+                </form>
+            </div>
+
+            <!-- Borrower Search -->
+            <div class="search-card">
+                <h3 style="margin-top: 0; color: #2c3e50;">Borrower Search</h3>
+                <form action="/history" method="POST">
+                    <div class="form-group">
+                        <input type="text" name="borrowerName" placeholder="Enter Borrower Name" required>
+                    </div>
+                    <button type="submit" style="background-color: #2980b9;">Search Borrower</button>
+                </form>
+            </div>
+        </div>
+
+        <% if (locals.resultType === 'staff') { %>
+            <div style="text-align: center; margin-bottom: 1rem;">
+                <h3>Records for Staff: <%= staffUsername %>
+                    <% if (locals.staffDeleted) { %>
+                        <span style="background-color: #c0392b; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; vertical-align: middle;">Deleted</span>
+                    <% } %>
+                </h3>
+                <form action="/export-history" method="POST" style="display: inline-block;">
+                    <input type="hidden" name="username" value="<%= staffUsername %>">
+                    <button type="submit" style="padding: 5px 10px; font-size: 0.8rem; background-color: #27ae60;">Export CSV</button>
+                </form>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Book Name</th>
+                        <th>Borrower</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Fine</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% data.forEach(record => { %>
+                        <tr>
+                            <td><%= record.bookName %></td>
+                            <td><%= record.borrowerName || '-' %></td>
+                            <td><%= record.borrowerPhone || '-' %></td>
+                            <td>
+                                <span class="status-badge status-<%= record.status %>">
+                                    <%= record.status %>
+                                </span>
+                            </td>
+                            <td><%= record.date ? record.date.toDateString() : 'N/A' %></td>
+                            <td><%= record.fine ? '$' + record.fine : '-' %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+
+        <% if (locals.resultType === 'borrower') { %>
+            <div style="text-align: center; margin-bottom: 1rem;">
+                <h3>History for Borrower: <%= borrowerName %></h3>
+                <form action="/email-receipt" method="POST" style="margin-top: 10px; padding: 10px; background: #f9f9f9; display: inline-block; border-radius: 4px; border: 1px solid #ddd;">
+                    <input type="hidden" name="borrowerName" value="<%= borrowerName %>">
+                    <input type="email" name="borrowerEmail" placeholder="Enter email address" required style="padding: 8px; border: 1px solid #ccc; border-radius: 3px; width: 200px;">
+                    <button type="submit" style="width: auto; padding: 8px 15px; background-color: #8e44ad; margin-left: 5px;">Email Receipt</button>
+                </form>
+            </div>
+            
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-value"><%= stats.totalBorrowed %></div>
+                    <div class="stat-label">Total Borrowed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" style="color: #27ae60;"><%= stats.returnedCount %></div>
+                    <div class="stat-label">Returned</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" style="color: #c0392b;"><%= stats.notReturnedCount %></div>
+                    <div class="stat-label">Not Returned</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" style="color: #e67e22;">$<%= stats.totalFine %></div>
+                    <div class="stat-label">Total Fine</div>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Book Name</th>
+                        <th>Issued By (Staff)</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Fine</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% data.forEach(record => { %>
+                        <tr>
+                            <td><%= record.bookName %></td>
+                            <td>
+                                <%= record.staff %>
+                                <% if (record.staffDeleted) { %>
+                                    <span style="background-color: #c0392b; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 5px;">Deleted</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <span class="status-badge status-<%= record.status %>">
+                                    <%= record.status %>
+                                </span>
+                            </td>
+                            <td><%= record.date ? record.date.toDateString() : 'N/A' %></td>
+                            <td><%= record.fine ? '$' + record.fine : '-' %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } %>
+
+        <a href="/landing" class="link">Back to Home</a>
+        <div style="margin-top: 2rem; color: #7f8c8d; font-size: 0.8rem; text-align: center;">All Rights are Reserved by Old-Town Library</div>
+    </div>
+</body>
+</html>

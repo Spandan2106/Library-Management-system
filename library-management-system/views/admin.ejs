@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - OldTown Library</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: #f4f7f6;
+            padding: 2rem;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid #ddd;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 2rem;
+            font-family: 'Georgia', serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #2c3e50;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-top: 2rem;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User Administration</h1>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Failed Attempts</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% users.forEach(user => { %>
+                    <tr>
+                        <td><%= user.username %></td>
+                        <td><%= user.role %></td>
+                        <td>
+                            <% if (user.lockUntil && user.lockUntil > Date.now()) { %>
+                                <span style="color: #c0392b; font-weight: bold;">Locked</span>
+                            <% } else { %>
+                                <span style="color: #2e7d32; font-weight: bold;">Active</span>
+                            <% } %>
+                        </td>
+                        <td><%= user.failedLoginAttempts %></td>
+                        <td>
+                            <form action="/admin/delete-user" method="POST" onsubmit="return confirm('Are you sure you want to delete user <%= user.username %>?');">
+                                <input type="hidden" name="username" value="<%= user.username %>">
+                                <input type="password" name="libPassword" placeholder="Librarian Password" required style="padding: 5px; border: 1px solid #ccc; border-radius: 3px; width: 120px;">
+                                <button type="submit" style="background-color: #c0392b; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+        
+        <div style="margin-top: 3rem;">
+            <h2 style="text-align: center; color: #2c3e50; font-family: 'Georgia', serif;">Top 5 Borrowers</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Borrower Name</th>
+                        <th>Total Books Borrowed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (locals.topBorrowers && topBorrowers.length > 0) { %>
+                        <% topBorrowers.forEach(borrower => { %>
+                            <tr>
+                                <td><%= borrower.name %></td>
+                                <td><%= borrower.count %></td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr><td colspan="2" style="text-align: center;">No data available</td></tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #eee; text-align: center;">
+            <h2 style="color: #c0392b; font-family: 'Georgia', serif;">System Reset</h2>
+            <p style="color: #666; margin-bottom: 1rem;">This action will delete all borrowing history and fines for all users. Book inventory will remain unchanged.</p>
+            <form action="/admin/reset-history" method="POST" onsubmit="return confirm('Are you sure you want to delete ALL user history? This cannot be undone.');">
+                <input type="password" name="libPassword" placeholder="Librarian Password" required style="padding: 8px; border: 1px solid #ccc; border-radius: 3px; width: 200px;">
+                <button type="submit" style="background-color: #c0392b; color: white; border: none; padding: 8px 16px; border-radius: 3px; cursor: pointer; font-weight: bold;">Delete All History</button>
+            </form>
+        </div>
+
+        <a href="/landing" class="back-btn">&larr; Back to Home</a>
+    </div>
+</body>
+</html>

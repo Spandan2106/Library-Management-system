@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - OldTown Library</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #ddd;
+            width: 100%;
+            max-width: 800px;
+        }
+        h2 { text-align: center; color: #2c3e50; margin-top: 0; }
+        .form-group { margin-bottom: 1rem; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #2c3e50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #34495e; }
+        .error { color: #c0392b; background: #fadbd8; padding: 10px; border-radius: 4px; text-align: center; margin-bottom: 1rem; }
+        .success { color: #27ae60; background: #d4efdf; padding: 10px; border-radius: 4px; text-align: center; margin-bottom: 1rem; }
+        
+        /* Scrollable Table Styles */
+        .section-title { margin-top: 2rem; border-bottom: 2px solid #eee; padding-bottom: 0.5rem; color: #2c3e50; }
+        .table-wrapper {
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            margin-top: 1rem;
+            background: #fff;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: #f8f9fa; color: #2c3e50; position: sticky; top: 0; z-index: 1; }
+        
+        .profile-header { display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 1rem; border-radius: 4px; margin-top: 1rem; }
+        .stat-badge { background: #2c3e50; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9rem; }
+        .link { display: block; text-align: center; margin-top: 1.5rem; color: #7f8c8d; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>User Profile Search</h2>
+        
+        <% if (error) { %> <div class="error"><%= error %></div> <% } %>
+        <% if (success) { %> <div class="success"><%= success %></div> <% } %>
+
+        <form action="/profile" method="POST">
+            <div class="form-group">
+                <input type="text" name="username" placeholder="Enter Username to View Profile" required>
+            </div>
+            <button type="submit">Search User</button>
+        </form>
+
+        <% if (user) { %>
+            <div class="profile-header">
+                <div>
+                    <h3 style="margin: 0;"><%= user.username %></h3>
+                    <span style="color: #7f8c8d; font-size: 0.9rem;"><%= user.role %></span>
+                </div>
+                <div>
+                    <span class="stat-badge">Fines: $<%= user.fines %></span>
+                </div>
+            </div>
+
+            <h4 class="section-title">Issued Books (<%= user.issuedBooks.length %>)</h4>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Book Name</th>
+                            <th>Borrower</th>
+                            <th>Issue Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (user.issuedBooks.length > 0) { %>
+                            <% user.issuedBooks.forEach(book => { %>
+                                <tr>
+                                    <td><%= book.bookName %></td>
+                                    <td><%= book.borrowerName %></td>
+                                    <td><%= book.issueDate.toDateString() %></td>
+                                    <td>
+                                        <form action="/return" method="POST" style="margin: 0;">
+                                            <input type="hidden" name="username" value="<%= user.username %>">
+                                            <input type="hidden" name="bookName" value="<%= book.bookName %>">
+                                            <input type="hidden" name="borrowerName" value="<%= book.borrowerName %>">
+                                            <input type="hidden" name="borrowerPhone" value="<%= book.borrowerPhone %>">
+                                            <button type="submit" style="padding: 5px 10px; font-size: 0.8rem; background-color: #e67e22; width: auto;">Return</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr><td colspan="4" style="text-align: center; color: #999;">No books currently issued</td></tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="margin-top: 2rem; text-align: right;">
+                <form action="/delete-user" method="POST" onsubmit="return confirm('Are you sure? This cannot be undone.');">
+                    <input type="hidden" name="username" value="<%= user.username %>">
+                    <button type="submit" style="background-color: #c0392b; width: auto; padding: 8px 15px;">Delete User Account</button>
+                </form>
+            </div>
+        <% } %>
+
+        <a href="/landing" class="link">Back to Home</a>
+        <div style="margin-top: 2rem; color: #7f8c8d; font-size: 0.8rem; text-align: center;">All Rights are Reserved by Old-Town Library</div>
+    </div>
+</body>
+</html>

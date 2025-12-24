@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Staff - OldTown Library</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .login-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #ddd;
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-card h2 {
+            text-align: center;
+            color: #2c3e50;
+            font-family: 'Georgia', serif;
+            margin-bottom: 1.5rem;
+            margin-top: 0;
+        }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #555; font-weight: 500; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 3px; box-sizing: border-box; font-size: 1rem;
+        }
+        button {
+            width: 100%; padding: 0.75rem; background-color: #2c3e50; color: white; border: none; border-radius: 3px;
+            font-size: 1rem; cursor: pointer; text-transform: uppercase; font-weight: bold;
+        }
+        button:hover { background-color: #1a252f; }
+        .error { background-color: #ffebee; color: #c62828; padding: 10px; border-radius: 3px; text-align: center; margin-bottom: 1rem; }
+        .success { background-color: #e8f5e9; color: #2e7d32; padding: 10px; border-radius: 3px; text-align: center; margin-bottom: 1rem; }
+        .link { display: block; text-align: center; margin-top: 1rem; color: #2c3e50; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2>Create Staff Account</h2>
+        <% if (error) { %>
+            <div class="error"><%= error %></div>
+        <% } %>
+        <% if (success) { %>
+            <div class="success"><%= success %></div>
+        <% } %>
+        <form action="/create-staff" method="POST">
+            <div class="form-group">
+                <label for="role">Account Role</label>
+                <select name="role" id="role" required>
+                    <option value="Assistant">Assistant (as1 - as10)</option>
+                    <option value="Librarian">Librarian (lib0.0)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required placeholder="e.g. as1 or lib0.0">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Set password">
+            </div>
+            <button type="submit">Create Account</button>
+        </form>
+        <a href="/landing" class="link">Back to Home</a>
+    </div>
+</body>
+</html>
