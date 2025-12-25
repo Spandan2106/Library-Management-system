@@ -153,6 +153,10 @@
                             </div>
                             <button type="submit" class="btn btn-danger w-100">Reset System History</button>
                         </form>
+                        <hr>
+                        <form action="/admin/delete-all-books" method="POST" onsubmit="return confirm('Are you sure you want to delete ALL books? This cannot be undone.');">
+                            <button type="submit" class="btn btn-outline-danger w-100">Delete All Books</button>
+                        </form>
                     </div>
                 </div>
             </div>

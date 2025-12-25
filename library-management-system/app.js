@@ -1877,10 +1877,9 @@ mongoose.connect(mongoURI)
                 { bookName: "Fire and Fury", bookAuthor: "Michael Wolff", bookPages: 336, bookPrice: 350, bookPublication: "Henry Holt", bookGenre: "Politics", bookState: "Available" }
             ];
         
-        if (count !== initialBooks.length) {
-            await Book.deleteMany({});
+        if (count === 0) {
             await Book.insertMany(initialBooks);
-            console.log("Database updated with new books");
+            console.log("Database seeded with initial books");
         }
     })
     .catch(err => console.error("Could not connect to MongoDB", err));
@@ -2388,6 +2387,17 @@ app.post("/admin/toggle-maintenance", async (req, res) => {
 app.post("/admin/reset-history", async (req, res) => {
     try {
         await User.updateMany({}, { $set: { returnHistory: [], fines: 0 } });
+        res.redirect("/admin");
+    } catch (err) {
+        console.log(err);
+        res.redirect("/admin");
+    }
+});
+
+// Admin Delete All Books
+app.post("/admin/delete-all-books", async (req, res) => {
+    try {
+        await Book.deleteMany({});
         res.redirect("/admin");
     } catch (err) {
         console.log(err);
