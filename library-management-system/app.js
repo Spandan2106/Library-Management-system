@@ -1881,6 +1881,11 @@ mongoose.connect(mongoURI)
             await Book.insertMany(initialBooks);
             console.log("Database seeded with initial books");
         }
+
+        // Start Server only after DB connection is established
+        app.listen(PORT, () => {
+            console.log(`App is running on port :${PORT}`);
+        });
     })
     .catch(err => console.error("Could not connect to MongoDB", err));
 
@@ -2893,9 +2898,4 @@ app.post("/delete", async (req, res) => {
     const requestedBookName = req.body.bookName;
     await Book.deleteOne({ bookName: requestedBookName });
     res.redirect("/library");
-});
-
-// Start Server
-app.listen(PORT, () => {
-    console.log(`App is running on port :${PORT}`);
 });
