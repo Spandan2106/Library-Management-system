@@ -89,6 +89,12 @@ const User = mongoose.model("User", userSchema);
 
 // Connect to MongoDB and Seed Data
 const mongoURI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/libraryDB";
+
+// Monitor Connection Events
+mongoose.connection.on('connected', () => console.log('Mongoose connected to DB Cluster'));
+mongoose.connection.on('error', (err) => console.error('Mongoose connection error:', err));
+mongoose.connection.on('disconnected', () => console.log('Mongoose disconnected'));
+
 mongoose.connect(mongoURI)
     .then(async () => {
         console.log("Connected to MongoDB");
