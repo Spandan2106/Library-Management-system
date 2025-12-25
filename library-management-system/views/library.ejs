@@ -72,6 +72,39 @@
         .form-section { background: white; padding: 1.5rem; border: 1px solid #ddd; border-radius: 3px; margin-bottom: 2rem; }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 1rem; }
         input, select { padding: 8px; border: 1px solid #ccc; border-radius: 3px; }
+        .sort-btn {
+            text-decoration: none;
+            color: #2c3e50;
+            padding: 5px 10px;
+            border-radius: 3px;
+        }
+        .sort-btn-active {
+            background-color: #e8eaf6;
+            font-weight: bold;
+        }
+        .pagination { display: flex; justify-content: center; gap: 10px; margin-top: 2rem; }
+        .pagination a { padding: 8px 12px; background: #2c3e50; color: white; text-decoration: none; border-radius: 3px; }
+        .pagination span { padding: 8px 12px; background: #ddd; border-radius: 3px; }
+        .book-cover {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background-color: #eee;
+            margin-bottom: 1rem;
+            border-radius: 3px;
+        }
+        @media (max-width: 768px) {
+            nav { flex-direction: column; gap: 1rem; text-align: center; }
+            nav div { width: 100%; justify-content: center; display: flex; gap: 20px; }
+            nav a { margin: 0; }
+            .books-grid { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            form[action="/library"] { flex-direction: column; }
+            form[action="/library"] input, form[action="/library"] select, form[action="/library"] button, form[action="/library"] a { width: 100%; }
+            .sort-btn { flex: 1; text-align: center; }
+            .container { padding: 0 15px; }
+            .book-card { padding: 1rem; }
+        }
     </style>
 </head>
 <body>
@@ -104,10 +137,19 @@
                         <option value="available" <%= (typeof filterOption !== 'undefined' && filterOption === 'available') ? 'selected' : '' %>>Available Only</option>
                         <option value="issued" <%= (typeof filterOption !== 'undefined' && filterOption === 'issued') ? 'selected' : '' %>>Issued Only</option>
                     </select>
+                    <select name="genre" style="padding: 10px; border-radius: 3px; border: 1px solid #ccc; cursor: pointer;">
+                        <option value="all" <%= (typeof genreOption !== 'undefined' && genreOption === 'all') ? 'selected' : '' %>>All Genres</option>
+                        <% if (locals.genres) { %>
+                            <% genres.forEach(g => { %>
+                                <option value="<%= g %>" <%= (typeof genreOption !== 'undefined' && genreOption === g) ? 'selected' : '' %>><%= g %></option>
+                            <% }) %>
+                        <% } %>
+                    </select>
                     <% if (sortOption) { %>
                         <input type="hidden" name="sort" value="<%= sortOption %>">
                     <% } %>
                     <button type="submit" class="btn-action" style="background-color: #2c3e50; color: white; border: none; padding: 10px 20px; border-radius: 3px; cursor: pointer;">Search</button>
+                    <a href="/library" class="btn-action" style="background-color: #95a5a6; text-decoration: none; text-align: center; padding: 10px 20px;">Reset</a>
                 </form>
                 
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -116,10 +158,11 @@
                         let params = [];
                         if (searchQuery) params.push(`search=${searchQuery}`);
                         if (typeof filterOption !== 'undefined' && filterOption !== 'all') params.push(`filter=${filterOption}`);
+                        if (typeof genreOption !== 'undefined' && genreOption !== 'all') params.push(`genre=${genreOption}`);
                         const searchParam = params.length > 0 ? '&' + params.join('&') : ''; 
                     %>
-                    <a href="/library?sort=price_asc<%= searchParam %>" style="text-decoration: none; color: #2c3e50; padding: 5px 10px; border-radius: 3px; <%= sortOption === 'price_asc' ? 'background-color: #e8eaf6; font-weight: bold;' : '' %>">Low &uarr;</a>
-                    <a href="/library?sort=price_desc<%= searchParam %>" style="text-decoration: none; color: #2c3e50; padding: 5px 10px; border-radius: 3px; <%= sortOption === 'price_desc' ? 'background-color: #e8eaf6; font-weight: bold;' : '' %>">High &darr;</a>
+                    <a href="/library?sort=price_asc<%= searchParam %>" class="sort-btn <%= sortOption === 'price_asc' ? 'sort-btn-active' : '' %>">Low &uarr;</a>
+                    <a href="/library?sort=price_desc<%= searchParam %>" class="sort-btn <%= sortOption === 'price_desc' ? 'sort-btn-active' : '' %>">High &darr;</a>
                     <% if (sortOption) { %>
                         <a href="/library<%= searchParam ? '?' + searchParam.slice(1) : '' %>" style="text-decoration: none; color: #999; font-size: 0.9rem;">Clear</a>
                     <% } %>
@@ -130,13 +173,27 @@
         <!-- Add Book Section -->
         <div class="form-section">
             <h2>Add New Book</h2>
-            <form action="/add" method="POST">
+            
+            <!-- ISBN Auto-Fill -->
+            <div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
+                <input type="text" id="isbnInput" placeholder="Enter ISBN (e.g. 9780141036144)" style="width: 250px;">
+                <button type="button" onclick="fetchBookDetails()" class="btn-action" id="fetchBtn" style="background-color: #2980b9;">Auto-Fill from ISBN</button>
+            </div>
+
+            <form action="/add" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="remoteCoverUrl" id="remoteCoverUrl">
                 <div class="form-grid">
                     <input type="text" name="bookName" placeholder="Book Name" required>
                     <input type="text" name="bookAuthor" placeholder="Author" required>
+                    <input type="text" name="bookGenre" placeholder="Genre" required>
                     <input type="number" name="bookPages" placeholder="Pages" required>
                     <input type="number" name="bookPrice" placeholder="Price" required>
                     <input type="text" name="bookPublication" placeholder="Publisher" required>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 5px;">Book Cover Image:</label>
+                    <input type="file" name="bookCover" accept="image/*">
+                    <img id="coverPreview" style="display: none; height: 100px; margin-top: 10px; border: 1px solid #ccc;">
                 </div>
                 <button type="submit" class="btn-add">Add Book</button>
             </form>
@@ -146,8 +203,14 @@
         <div class="books-grid">
             <% data.forEach(function(book) { %>
                 <div class="book-card">
+                    <% if(book.bookCover) { %>
+                        <img src="<%= book.bookCover %>" alt="Cover" class="book-cover">
+                    <% } else { %>
+                        <div class="book-cover" style="display: flex; align-items: center; justify-content: center; color: #aaa;">No Cover</div>
+                    <% } %>
                     <h3><%= book.bookName %></h3>
                     <div class="book-info">by <%= book.bookAuthor %></div>
+                    <div class="book-info"><%= book.bookGenre || 'General' %></div>
                     <div class="book-info"><%= book.bookPublication %></div>
                     <div class="book-info"><%= book.bookPages %> pages • $<%= book.bookPrice %></div>
                     
@@ -174,15 +237,123 @@
                                 <button type="submit" class="btn-action btn-return">Return</button>
                             </form>
                         <% } %>
-                        
-                        <form action="/delete" method="POST">
-                            <input type="hidden" name="bookName" value="<%= book.bookName %>">
-                            <button type="submit" class="btn-action btn-delete">Delete</button>
-                        </form>
                     </div>
+
+                    <!-- Edit Book Details Form -->
+                    <details style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
+                        <summary style="cursor: pointer; color: #2980b9; font-size: 0.9rem; font-weight: bold; outline: none;">Edit Details</summary>
+                        <form action="/edit-book" method="POST" style="margin-top: 10px;">
+                            <input type="hidden" name="originalBookName" value="<%= book.bookName %>">
+                            
+                            <div style="margin-bottom: 5px;">
+                                <label style="font-size: 0.75rem; font-weight: bold; display: block;">Name</label>
+                                <input type="text" name="bookName" value="<%= book.bookName %>" required style="width: 100%; padding: 5px; font-size: 0.9rem;">
+                            </div>
+                            
+                            <div style="margin-bottom: 5px;">
+                                <label style="font-size: 0.75rem; font-weight: bold; display: block;">Author</label>
+                                <input type="text" name="bookAuthor" value="<%= book.bookAuthor %>" required style="width: 100%; padding: 5px; font-size: 0.9rem;">
+                            </div>
+
+                            <div style="margin-bottom: 5px;">
+                                <label style="font-size: 0.75rem; font-weight: bold; display: block;">Genre</label>
+                                <input type="text" name="bookGenre" value="<%= book.bookGenre || '' %>" required style="width: 100%; padding: 5px; font-size: 0.9rem;">
+                            </div>
+
+                            <div style="display: flex; gap: 10px; margin-bottom: 5px;">
+                                <div style="flex: 1;">
+                                    <label style="font-size: 0.75rem; font-weight: bold; display: block;">Pages</label>
+                                    <input type="number" name="bookPages" value="<%= book.bookPages %>" required style="width: 100%; padding: 5px; font-size: 0.9rem;">
+                                </div>
+                                <div style="flex: 1;">
+                                    <label style="font-size: 0.75rem; font-weight: bold; display: block;">Price</label>
+                                    <input type="number" name="bookPrice" value="<%= book.bookPrice %>" required style="width: 100%; padding: 5px; font-size: 0.9rem;">
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 5px;">
+                                <label style="font-size: 0.75rem; font-weight: bold; display: block;">Publisher</label>
+                                <input type="text" name="bookPublication" value="<%= book.bookPublication %>" required style="width: 100%; padding: 5px; font-size: 0.9rem;">
+                            </div>
+                            
+                            <div style="margin-bottom: 10px;">
+                                <label style="font-size: 0.75rem; font-weight: bold; display: block;">Total Quantity</label>
+                                <input type="number" name="quantity" value="<%= book.quantity %>" required style="width: 100%; padding: 5px; font-size: 0.9rem;">
+                            </div>
+
+                            <button type="submit" class="btn-action" style="background-color: #27ae60; width: 100%;">Save Changes</button>
+                        </form>
+
+                        <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                            <h4 style="margin: 0 0 10px 0; font-size: 0.8rem; color: #555;">Update Cover</h4>
+                            <form action="/update-book-cover" method="POST" enctype="multipart/form-data">
+                                <input type="hidden" name="bookName" value="<%= book.bookName %>">
+                                <div style="display: flex; gap: 5px; align-items: center;">
+                                    <input type="file" name="bookCover" accept="image/*" required style="font-size: 0.75rem; padding: 2px; width: 100%;">
+                                    <button type="submit" class="btn-action" style="font-size: 0.7rem; padding: 4px 8px; background-color: #7f8c8d;">Upload</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <form action="/delete" method="POST" style="margin-top: 15px;">
+                            <input type="hidden" name="bookName" value="<%= book.bookName %>">
+                            <button type="submit" class="btn-action btn-delete" style="background-color: #c0392b; width: 100%;">Delete Book</button>
+                        </form>
+                    </details>
                 </div>
             <% }); %>
         </div>
+
+        <!-- Pagination Controls -->
+        <% if (locals.totalPages > 1) { %>
+            <div class="pagination">
+                <% if (currentPage > 1) { %>
+                    <a href="/library?page=<%= currentPage - 1 %>&search=<%= searchQuery %>&sort=<%= sortOption %>&filter=<%= filterOption %>&genre=<%= genreOption %>">&laquo; Previous</a>
+                <% } %>
+                <span>Page <%= currentPage %> of <%= totalPages %></span>
+                <% if (currentPage < totalPages) { %>
+                    <a href="/library?page=<%= currentPage + 1 %>&search=<%= searchQuery %>&sort=<%= sortOption %>&filter=<%= filterOption %>&genre=<%= genreOption %>">Next &raquo;</a>
+                <% } %>
+            </div>
+        <% } %>
     </div>
+
+    <script>
+        async function fetchBookDetails() {
+            const isbn = document.getElementById('isbnInput').value;
+            if(!isbn) return alert("Please enter an ISBN");
+            
+            const btn = document.getElementById('fetchBtn');
+            btn.textContent = "Loading...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`/api/isbn?isbn=${isbn}`);
+                const data = await res.json();
+                
+                if(data.error) {
+                    alert(data.error);
+                } else {
+                    document.querySelector('input[name="bookName"]').value = data.title || '';
+                    document.querySelector('input[name="bookAuthor"]').value = data.authors ? data.authors.join(', ') : '';
+                    document.querySelector('input[name="bookGenre"]').value = data.categories ? data.categories[0] : '';
+                    document.querySelector('input[name="bookPages"]').value = data.pageCount || '';
+                    document.querySelector('input[name="bookPublication"]').value = data.publisher || '';
+                    if(data.imageLinks && data.imageLinks.thumbnail) {
+                        document.getElementById('remoteCoverUrl').value = data.imageLinks.thumbnail;
+                        const preview = document.getElementById('coverPreview');
+                        preview.src = data.imageLinks.thumbnail;
+                        preview.style.display = 'block';
+                    }
+                }
+            } catch(e) {
+                console.error(e);
+                alert("Error fetching details");
+            } finally {
+                btn.textContent = "Auto-Fill from ISBN";
+                btn.disabled = false;
+            }
+        }
+    </script>
 </body>
 </html>

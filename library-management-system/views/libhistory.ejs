@@ -4,55 +4,136 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OldTown Library History</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 2rem 0;
+            font-family: 'Lato', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             margin: 0;
+            padding: 40px 20px;
             color: #333;
-            text-align: center;
+            line-height: 1.6;
         }
         .container {
             background: white;
-            padding: 3rem;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            max-width: 1000px;
-            width: 90%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 50px;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
-        h1 { margin-bottom: 1rem; font-family: 'Georgia', serif; color: #2c3e50; }
-        p { font-size: 1.1rem; margin-bottom: 2rem; color: #555; }
+        h1 { 
+            font-family: 'Playfair Display', serif;
+            color: #2c3e50; 
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        h2 {
+            font-family: 'Playfair Display', serif;
+            color: #7f8c8d;
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 40px;
+            text-align: center;
+            font-weight: 400;
+            font-style: italic;
+        }
+        .intro-text {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 40px;
+            text-align: justify;
+        }
+        .timeline-item {
+            background: #f8f9fa;
+            border-left: 5px solid #2c3e50;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 0 8px 8px 0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .timeline-item:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            background: #fff;
+        }
+        .timeline-item h3 {
+            font-family: 'Playfair Display', serif;
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 1.4rem;
+        }
+        .timeline-item p {
+            margin-bottom: 15px;
+        }
+        .timeline-item ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .timeline-item li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        .timeline-item li:before {
+            content: "•";
+            color: #2c3e50;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
         .btn {
             display: inline-block;
-            padding: 1rem 2rem;
+            padding: 12px 35px;
             background-color: #2c3e50;
             color: white;
             text-decoration: none;
-            border-radius: 3px;
-            font-weight: bold;
-            transition: background 0.2s;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: all 0.3s;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.9rem;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            margin-top: 20px;
+            display: block;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
         }
         .btn:hover {
-            background-color: #1a252f;
+            background-color: #34495e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 62, 80, 0.3);
         }
-        h2 {
-            color: #2c3e50;
-            margin-bottom: 1rem;
-            font-family: 'Georgia', serif;
+        .footer-note {
+            text-align: center;
+            margin-top: 40px;
+            font-style: italic;
+            color: #95a5a6;
         }
-        h3 {
-            color: #555;
-            margin-top: 2rem;
-            font-size: 0.9rem;
+        #backToTop {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: none;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        #backToTop:hover {
+            background-color: #34495e;
+            transform: translateY(-3px);
         }
     </style>
 </head>
@@ -60,28 +141,48 @@
     <div class="container">
         <h1>OldTown Library History</h1>
         <h2>Discover the Legacy of Knowledge</h2>
-        <p></p>
-        <p>The OldTown Library has been a beacon of knowledge and community since its establishment in 1892. Over the years, it has evolved to meet the changing needs of its patrons while preserving its rich heritage.</p>
-        <p>From its humble beginnings as a small collection of books, the library has grown into a modern facility offering a wide range of resources, including digital media, community programs, and educational workshops.</p>
-        <p>Our mission has always been to provide access to information, foster a love for reading, and support lifelong learning for all members of the OldTown community.</p>
-        <p>We invite you to explore our history and join us in continuing this proud tradition of service and knowledge.</p>
-        <p>The Old Town Lexicon (Est. Jan 1, 1892)
-1. The Foundation: The "New Year's Charter"
-On the morning of January 1, 1892, the steel tycoon Elias Thorne dedicated his fortune to build a "Cathedral of Logic" in the heart of Old Town.
- * Importance: It was the first library in the region to use a mechanical card catalog system, a precursor to the databases we use today. It symbolized the shift from private collections to public knowledge.
- * The Architecture: Built with local iron and red brick, the library featured a massive "Clock of Centuries" in the lobby that was synchronized with the library’s internal filing system.
-2. The Great Depression & The "Labor Exchange" (1929-1939)
-When the stock market crashed, the Old Town Lexicon became more than a library; it became a survival hub.
- * Political Aspect: The library became the unofficial "Town Hall." Because it was a neutral space, labor unions and factory owners met in the "Silent Wings" to negotiate strikes. It was the only place in Old Town where a penniless worker and a wealthy landlord sat at the same table.
- * War Time Moment (WWI): During the tail end of the Great War, the basement was converted into a Telegraphy School, training local residents in Morse code to help with wartime communications.
-3. The 1944 "Paper Blockade" (WWII)
-During World War II, Old Town was a strategic rail hub. The library faced its greatest threat when a regional paper shortage led the government to suggest "recycling" old books for the war effort.
- * The Resistance: The head librarian, Clara Vance, hid the most valuable 19th-century collections in the hollowed-out walls of the ventilation shafts. She famously told the military, "You can take the iron from our fences, but you will not take the wisdom from our shelves."
- * Political Aspect: The library functioned as a Sanctuary Zone. It was declared a "Non-Combatant Landmark," allowing refugees passing through Old Town to sleep in the reading rooms.
-4. The 1990s: The "Silicon Shift"
-As the digital age dawned, the library faced an identity crisis. The town debated tearing it down to build a shopping center.
- * Political Aspect: A grassroots movement called "The Save-the-Lexicon Campaign" fought a 3-year legal battle. They won by proving the library held the original land deeds of every house in Old Town, making it legally indispensable to the city’s existence.
- * Importance: This period saw the first server racks installed in the old "Poetry Section," marking the beginning of the Digital Archive.</p>
+        
+        <div class="intro-text">
+            <p>The OldTown Library has been a beacon of knowledge and community since its establishment in 1892. Over the years, it has evolved to meet the changing needs of its patrons while preserving its rich heritage.</p>
+            <p>From its humble beginnings as a small collection of books, the library has grown into a modern facility offering a wide range of resources, including digital media, community programs, and educational workshops.</p>
+        </div>
+
+        <div class="timeline-item">
+            <h3>1. The Foundation: The "New Year's Charter" (1892)</h3>
+            <p>On the morning of January 1, 1892, the steel tycoon Elias Thorne dedicated his fortune to build a "Cathedral of Logic" in the heart of Old Town.</p>
+            <ul>
+                <li><strong>Importance:</strong> It was the first library in the region to use a mechanical card catalog system, a precursor to the databases we use today. It symbolized the shift from private collections to public knowledge.</li>
+                <li><strong>The Architecture:</strong> Built with local iron and red brick, the library featured a massive "Clock of Centuries" in the lobby that was synchronized with the library’s internal filing system.</li>
+            </ul>
+        </div>
+
+        <div class="timeline-item">
+            <h3>2. The Great Depression & The "Labor Exchange" (1929-1939)</h3>
+            <p>When the stock market crashed, the Old Town Lexicon became more than a library; it became a survival hub.</p>
+            <ul>
+                <li><strong>Political Aspect:</strong> The library became the unofficial "Town Hall." Because it was a neutral space, labor unions and factory owners met in the "Silent Wings" to negotiate strikes. It was the only place in Old Town where a penniless worker and a wealthy landlord sat at the same table.</li>
+                <li><strong>War Time Moment (WWI):</strong> During the tail end of the Great War, the basement was converted into a Telegraphy School, training local residents in Morse code to help with wartime communications.</li>
+            </ul>
+        </div>
+
+        <div class="timeline-item">
+            <h3>3. The 1944 "Paper Blockade" (WWII)</h3>
+            <p>During World War II, Old Town was a strategic rail hub. The library faced its greatest threat when a regional paper shortage led the government to suggest "recycling" old books for the war effort.</p>
+            <ul>
+                <li><strong>The Resistance:</strong> The head librarian, Clara Vance, hid the most valuable 19th-century collections in the hollowed-out walls of the ventilation shafts. She famously told the military, "You can take the iron from our fences, but you will not take the wisdom from our shelves."</li>
+                <li><strong>Political Aspect:</strong> The library functioned as a Sanctuary Zone. It was declared a "Non-Combatant Landmark," allowing refugees passing through Old Town to sleep in the reading rooms.</li>
+            </ul>
+        </div>
+
+        <div class="timeline-item">
+            <h3>4. The 1990s: The "Silicon Shift"</h3>
+            <p>As the digital age dawned, the library faced an identity crisis. The town debated tearing it down to build a shopping center.</p>
+            <ul>
+                <li><strong>Political Aspect:</strong> A grassroots movement called "The Save-the-Lexicon Campaign" fought a 3-year legal battle. They won by proving the library held the original land deeds of every house in Old Town, making it legally indispensable to the city’s existence.</li>
+                <li><strong>Importance:</strong> This period saw the first server racks installed in the old "Poetry Section," marking the beginning of the Digital Archive.</li>
+            </ul>
+        </div>
+
         <a href="/" class="btn">Return to Home</a>
-        <h3>Join us in celebrating over a century of learning and community service!</h3>
+        <div class="footer-note">Join us in celebrating over a century of learning and community service!</div>
     </div>

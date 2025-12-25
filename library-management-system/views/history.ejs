@@ -63,6 +63,15 @@
         .status-badge { padding: 3px 8px; border-radius: 3px; font-size: 0.85rem; }
         .status-Issued { background: #fff3cd; color: #856404; }
         .status-Returned { background: #d4edda; color: #155724; }
+        .table-wrapper { overflow-x: auto; }
+        @media (max-width: 768px) {
+            .container { padding: 1.5rem; width: 95%; }
+            .search-section { flex-direction: column; gap: 1rem; }
+            .search-card { width: 100%; min-width: 0; }
+            .stats-bar { flex-wrap: wrap; gap: 15px; }
+            .stat-item { flex: 1 1 40%; }
+            th, td { padding: 8px; font-size: 0.9rem; }
+        }
     </style>
 </head>
 <body>
@@ -113,6 +122,7 @@
                     <button type="submit" style="padding: 5px 10px; font-size: 0.8rem; background-color: #27ae60;">Export CSV</button>
                 </form>
             </div>
+            <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
@@ -141,6 +151,7 @@
                     <% }) %>
                 </tbody>
             </table>
+            </div>
         <% } %>
 
         <% if (locals.resultType === 'borrower') { %>
@@ -172,6 +183,7 @@
                 </div>
             </div>
 
+            <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
@@ -203,6 +215,7 @@
                     <% }) %>
                 </tbody>
             </table>
+            </div>
         <% } %>
 
         <a href="/landing" class="link">Back to Home</a>
